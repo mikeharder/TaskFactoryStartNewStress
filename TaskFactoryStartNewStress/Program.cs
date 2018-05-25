@@ -21,7 +21,7 @@ namespace TaskFactoryStartNewStress
 
             var printStatusTask = PrintStatus(startNew);
 
-            for (var i=0; i < _threads; i++)
+            for (var i = 0; i < _threads; i++)
             {
                 StartTasks(i, startNew);
             }
@@ -37,7 +37,7 @@ namespace TaskFactoryStartNewStress
                 Console.WriteLine($"StartNew: {startNew}");
                 Console.WriteLine($"Last Updated: {DateTime.Now.ToString("h:mm:ss.fff")}");
 
-                for (var i=0; i < _threads; i++)
+                for (var i = 0; i < _threads; i++)
                 {
                     Console.WriteLine($"[{i}] Started: {_tasksStarted[i]}, Executed: {_tasksExecuted[i]}" +
                         $" Executing: {_tasksStarted[i] - _tasksExecuted[i]}");
@@ -65,9 +65,10 @@ namespace TaskFactoryStartNewStress
             if (startNew)
             {
                 _taskFactory.StartNew(_ =>
-                {
-                    Interlocked.Increment(ref _tasksExecuted[index]);
-                },
+                    {
+                        Thread.Sleep(100);
+                        Interlocked.Increment(ref _tasksExecuted[index]);
+                    },
                     new object(),
                     CancellationToken.None,
                     TaskCreationOptions.LongRunning,
@@ -77,6 +78,7 @@ namespace TaskFactoryStartNewStress
             {
                 var thread = new Thread(_ =>
                 {
+                    Thread.Sleep(100);
                     Interlocked.Increment(ref _tasksExecuted[index]);
                 });
                 thread.Start();
