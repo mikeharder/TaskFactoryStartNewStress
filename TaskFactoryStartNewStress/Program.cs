@@ -14,6 +14,8 @@ namespace TaskFactoryStartNewStress
 
         static void Main(string[] args)
         {
+            var startNew = (args.Length >= 1) ? bool.Parse(args[0]) : true;
+
             _tasksStarted = new int[_threads];
             _tasksExecuted = new int[_threads];
 
@@ -21,7 +23,7 @@ namespace TaskFactoryStartNewStress
 
             for (var i=0; i < _threads; i++)
             {
-                StartTasks(i);
+                StartTasks(i, startNew);
             }
 
             printStatusTask.Wait();
@@ -44,29 +46,40 @@ namespace TaskFactoryStartNewStress
             }
         }
 
-        private static void StartTasks(int index)
+        private static void StartTasks(int index, bool startNew)
         {
             var t = new Thread(() =>
             {
                 while (true)
                 {
-                    StartTask(index);
+                    StartTask(index, startNew);
                 }
             });
             t.Start();
         }
 
-        private static void StartTask(int index)
+        private static void StartTask(int index, bool startNew)
         {
             _tasksStarted[index]++;
-            _taskFactory.StartNew(_ =>
+            if (startNew)
+            {
+                _taskFactory.StartNew(_ =>
                 {
                     Interlocked.Increment(ref _tasksExecuted[index]);
                 },
-                new object(),
-                CancellationToken.None,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default);
+                    new object(),
+                    CancellationToken.None,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default);
+            }
+            else
+            {
+                var thread = new Thread(_ =>
+                {
+                    Interlocked.Increment(ref _tasksExecuted[index]);
+                });
+                thread.Start();
+            }
         }
     }
 }
