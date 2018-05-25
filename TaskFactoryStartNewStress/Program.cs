@@ -19,7 +19,7 @@ namespace TaskFactoryStartNewStress
             _tasksStarted = new int[_threads];
             _tasksExecuted = new int[_threads];
 
-            var printStatusTask = PrintStatus();
+            var printStatusTask = PrintStatus(startNew);
 
             for (var i=0; i < _threads; i++)
             {
@@ -29,11 +29,12 @@ namespace TaskFactoryStartNewStress
             printStatusTask.Wait();
         }
 
-        private static async Task PrintStatus()
+        private static async Task PrintStatus(bool startNew)
         {
             while (true)
             {
                 Console.Clear();
+                Console.WriteLine($"StartNew: {startNew}");
                 Console.WriteLine($"Last Updated: {DateTime.Now.ToString("h:mm:ss.fff")}");
 
                 for (var i=0; i < _threads; i++)
